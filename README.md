@@ -1,7 +1,7 @@
 # Requirements
-- [Link](<https://docs.google.com/document/d/1KFjEVKu-tTer57okB8FfoqhLygaQzsmJtaKKMIgTtmQ/edit#/> "Live View")
 
-Requirement #1: Recreate the Zip Code spreadsheet as a custom Territory object.
+
+Requirement #1: Recreate the Zip Code spreadsheet as a custom Territory object.The custom object should have the following custom fields Zip Code(Text ) and Owner(Lookup(User))
 
 Requirement #2: When an Account’s BillingPostalCode (aka Zip Code), is changed, 
 1. Change the Account Owner to the sales representative assigned to the new zip code
