@@ -5,7 +5,6 @@ trigger AccountUpdate on Account (after insert, after update) {
             AccountUpdateTriggerController.afterInsert(Trigger.new);
         }
         when  AFTER_UPDATE{
-            
             AccountUpdateTriggerController.afterUpdate(Trigger.new, Trigger.oldMap);
         }
     }
