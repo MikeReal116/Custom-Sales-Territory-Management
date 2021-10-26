@@ -38,9 +38,15 @@ public with sharing class AccountUpdateTriggerController {
 
     }
 
+    private static Integer generateRandomInteger(List<Id> ids){
+        Integer randomNumber = Integer.valueof(Math.random()*(ids.size()+1));
+        return randomNumber;
+    }
+
     private static void handleOwnerChange(Map<Id, String> idMapToBillingPostalCode){
         //territory zip code map with the sales rep Id
-        Map <String, Id> territoryMapToRep = new Map<String, Id>();
+        //same zip code can be assigned to multiple sales reps
+        Map <String, List<Id>> territoryMapToReps = new Map<String, List<Id>>();
 
         
         List<Territory__c> territories = [
@@ -55,7 +61,22 @@ public with sharing class AccountUpdateTriggerController {
         }
 
         for(Territory__c territory : territories){
-            territoryMapToRep.put(territory.Zip_Code__c, territory.Owner__c);
+            //if billing postal code doesnt exist, add it as a key and initialize it as an empty list
+            if(!territoryMapToReps.containsKey(territory.Zip_Code__c)){
+                territoryMapToReps.put(territory.Zip_Code__c, new List<Id>());
+            }
+            //get the billing postal code and add the sales reps associated with that postal code
+            territoryMapToReps.get(territory.Zip_Code__c).add(territory.Owner__c);
+        }
+
+        // check if list contains multiple sales reps randomly assign one rep to that billing postal code
+        for(String postalCode: territoryMapToReps.KeySet()){
+            if(territoryMapToReps.get(postalCode).size()>1){
+                Integer randomNumber = generateRandomInteger(territoryMapToReps.get(postalCode));
+                List<Id> newSalesRep = new List<Id>();
+                newSalesRep.add(territoryMapToReps.get(postalCode).get(randomNumber));
+                territoryMapToReps.put(postalCode, newSalesRep);
+            }
         }
 
         List<Account> accounts = [
@@ -67,9 +88,9 @@ public with sharing class AccountUpdateTriggerController {
         Map<Id, Id> accountIdMapToOwnerId = new Map<Id, Id>();
 
         for(Account acc: accounts){
-            if(territoryMapToRep.containsKey(acc.BillingPostalCode)){
-                acc.OwnerId = territoryMapToRep.get(acc.BillingPostalCode);
-                accountIdMapToOwnerId.put(acc.Id, territoryMapToRep.get(acc.BillingPostalCode));
+            if(territoryMapToReps.containsKey(acc.BillingPostalCode)){
+                acc.OwnerId = territoryMapToReps.get(acc.BillingPostalCode).get(0);
+                accountIdMapToOwnerId.put(acc.Id, territoryMapToReps.get(acc.BillingPostalCode).get(0));
             }
         }
 
