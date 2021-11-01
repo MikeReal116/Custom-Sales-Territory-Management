@@ -1,6 +1,6 @@
 public with sharing class AccountUpdateTriggerController {
 
-    public static void afterInsert(List<Account> newAccs){
+    public static void beforeInsert(List<Account> newAccs){
         
         Map<Id, String> idMapToBillingPostalCode = new Map<Id, String>();
 
@@ -49,11 +49,11 @@ public with sharing class AccountUpdateTriggerController {
         Map <String, List<Id>> territoryMapToReps = new Map<String, List<Id>>();
 
         
-        List<Territory__c> territories = [
-            SELECT Id, Zip_Code__c,Owner__c 
-            FROM Territory__c 
-            WHERE Zip_Code__c IN :idMapToBillingPostalCode.values()
-        ];
+        List<Territory__c> territories = [SELECT Id, 
+                                                 Zip_Code__c,
+                                                 Owner__c 
+                                            FROM Territory__c 
+                                           WHERE Zip_Code__c IN :idMapToBillingPostalCode.values()];
 
         //return if no territory with the billing code hasn't been assigned to any sales rep
         if(territories.isEmpty()){
@@ -96,11 +96,11 @@ public with sharing class AccountUpdateTriggerController {
 
         update accounts;
 
-        List<Contact> contacts = [
-            SELECT Id, AccountId,OwnerId 
-            FROM Contact 
-            WHERE AccountId IN :accountIdMapToOwnerId.KeySet()
-        ];
+        List<Contact> contacts = [SELECT Id,
+                                         AccountId,
+                                         OwnerId 
+                                    FROM Contact 
+                                   WHERE AccountId IN :accountIdMapToOwnerId.KeySet()];
 
         for(Contact con:contacts){
             if(accountIdMapToOwnerId.containsKey(con.AccountId)){

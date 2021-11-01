@@ -30,11 +30,11 @@ public with sharing class TerritoryTriggerHandler {
 
     private static void checkTerritoryController(Set<String> postalCode, List<Territory__c> newTerritories){
         // count the number of sales reps assigned to a single zip code 
-        List<AggregateResult> agResults = [
-            SELECT Zip_Code__c, COUNT(Id) numOfReps FROM Territory__c
-            WHERE Zip_Code__c IN :postalCode 
-            GROUP BY Zip_Code__c
-        ];
+        List<AggregateResult> agResults = [SELECT Zip_Code__c, 
+                                                  COUNT(Id) numOfReps 
+                                             FROM Territory__c
+                                            WHERE Zip_Code__c IN :postalCode 
+                                         GROUP BY Zip_Code__c];
 
         
 
@@ -52,7 +52,7 @@ public with sharing class TerritoryTriggerHandler {
             //if zip code already exist in our records and map
             // if it zip code has more than 3 reps associated with it
             if(postalCodeMapToSalesReps.containsKey(territory.Zip_Code__c) && postalCodeMapToSalesReps.get(territory.Zip_Code__c)>=3){
-                System.debug('Here');
+
                 territory.addError('You can not have more than 3 sales reps for the same zip code');     
             //if it's a new zip code, add it to the map and it to zero 
             }else if (!postalCodeMapToSalesReps.containsKey(territory.Zip_Code__c)){
